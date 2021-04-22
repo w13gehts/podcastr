@@ -1,17 +1,23 @@
 import { GetStaticProps } from "next";
 import Image from "next/image";
+import Link from 'next/link';
+
+import { useContext } from "react";
+import { PlayerContext } from "../contexts/PlayerContext";
+
 import { format, parseISO } from "date-fns";
 import ptBR from "date-fns/locale/pt-BR";
+
 import { api } from "../services/api";
 import { convertDurationToTimeString } from "../utils/convertDurationToTimeString";
 
 import styles from "./home.module.scss";
 
+
 type Episode = {
   id: string;
   title: string;
-  thumbnail: string;
-  description: string;
+  thumbnail: string;  
   members: string;
   duration: number;
   durationAsString: string;
@@ -25,6 +31,8 @@ type HomeProps = {
 };
 
 export default function Home({ latestEpisodes, allEpisodes }: HomeProps) {
+  const { play } = useContext(PlayerContext);
+  
   return (
     <div className={styles.homepage}>
       <section className={styles.latestEpisodes}>
@@ -43,13 +51,15 @@ export default function Home({ latestEpisodes, allEpisodes }: HomeProps) {
                 />
 
                 <div className={styles.episodeDetails}>
-                  <a href="">{episode.title}</a>
+                  <Link href={`/episodes/${episode.id}`}>
+                  <a>{episode.title}</a>
+                  </Link>
                   <p>{episode.members}</p>
                   <span>{episode.publishedAt}</span>
                   <span>{episode.durationAsString}</span>
                 </div>
 
-                <button type="button">
+                <button type="button" onClick={() => play(episode)}>
                   <img src="/play-green.svg" alt="Tocar episódio" />
                 </button>
               </li>
@@ -63,12 +73,14 @@ export default function Home({ latestEpisodes, allEpisodes }: HomeProps) {
 
         <table cellSpacing={0}>
           <thead>
+            <tr>
             <th></th>
             <th>Podcast</th>
             <th>Integrantes</th>
             <th>Data</th>
             <th>Duração</th>
             <th></th>
+            </tr>
           </thead>
 
           <tbody>
@@ -85,7 +97,9 @@ export default function Home({ latestEpisodes, allEpisodes }: HomeProps) {
                     />
                   </td>
                   <td>
-                    <a href="">{episode.title}</a>
+                    <Link href={`/episodes/${episode.id}`}>
+                    <a>{episode.title}</a>
+                    </Link>
                   </td>
                   <td>{episode.members}</td>
                   <td style={{ width: 100 }}>{episode.publishedAt}</td>
@@ -126,8 +140,7 @@ export const getStaticProps: GetStaticProps = async () => {
       duration: Number(episode.file.duration),
       durationAsString: convertDurationToTimeString(
         Number(episode.file.duration),
-      ),
-      description: episode.description,
+      ),    
       url: episode.file.url,
     };
   });
