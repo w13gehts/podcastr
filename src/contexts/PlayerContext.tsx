@@ -90,8 +90,7 @@ function playNext() {
 function playPrevious() {
   if(hasPrevious) {
     setCurrentEpisodeIndex(currentEpisodeIndex - 1);
-  }
-  
+  }  
 }
 
   return (
